@@ -1,0 +1,68 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Welcome, {{ user.get_full_name }}</h2>
+        <p class="lead">Diabetic Retinopathy Detection Dashboard</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'upload' %}" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Upload New Image
+        </a>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Patients</h5>
+                <h2 class="card-text">{{ total_patients }}</h2>
+                <a href="{% url 'history' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Recent Patients
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for patient in recent_patients %}
+                    <a href="{% url 'patient_detail' patient.id %}" class="list-group-item list-group-item-action">
+                        {{ patient.first_name }} {{ patient.last_name }} ({{ patient.patient_id }})
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item">No patients found</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Recent Analyses
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for image in recent_images %}
+                    <a href="{% url 'result' image.id %}" class="list-group-item list-group-item-action">
+                        {{ image.patient.first_name }} - Stage {{ image.get_stage_display }}
+                        <span class="badge bg-primary float-end">{{ image.confidence|floatformat:2 }}%</span>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item">No analyses found</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

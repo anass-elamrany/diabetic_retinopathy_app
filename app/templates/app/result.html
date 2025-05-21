@@ -1,0 +1,67 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4>Analysis Result</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Patient Information</h5>
+                        <p><strong>Name:</strong> {{ image.patient.first_name }} {{ image.patient.last_name }}</p>
+                        <p><strong>Patient ID:</strong> {{ image.patient.patient_id }}</p>
+                        <p><strong>Date of Birth:</strong> {{ image.patient.date_of_birth }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center mb-3">
+                            <img src="{{ image.image.url }}" alt="Retina Image" class="img-fluid rounded" style="max-height: 200px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="alert alert-{% if image.stage == 0 %}success{% else %}warning{% endif %}">
+                    <h4 class="alert-heading">
+                        Diagnosis: {{ stage_display }}
+                        <span class="float-end">Confidence: {{ confidence_percentage }}%</span>
+                    </h4>
+                    <p>
+                        {% if image.stage == 0 %}
+                            No signs of diabetic retinopathy detected.
+                        {% elif image.stage == 1 %}
+                            Mild nonproliferative diabetic retinopathy detected.
+                        {% elif image.stage == 2 %}
+                            Moderate nonproliferative diabetic retinopathy detected.
+                        {% elif image.stage == 3 %}
+                            Severe nonproliferative diabetic retinopathy detected.
+                        {% elif image.stage == 4 %}
+                            Proliferative diabetic retinopathy detected.
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h5>Notes:</h5>
+                    <p>{{ image.notes|default:"No notes provided" }}</p>
+                </div>
+                
+                <div class="text-center">
+                    <a href="{% url 'upload' %}" class="btn btn-primary">
+                        <i class="bi bi-upload"></i> Analyze Another Image
+                    </a>
+                    <a href="{% url 'patient_detail' image.patient.id %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-person-lines-fill"></i> View Patient History
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                Analyzed on {{ image.uploaded_at }} by Dr. {{ image.analyzed_by.get_full_name }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

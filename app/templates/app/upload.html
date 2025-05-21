@@ -1,0 +1,42 @@
+{% extends 'app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4>Upload Retina Image</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload"></i> Upload and Analyze
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Upload Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Select the patient from the dropdown</li>
+                    <li>Upload a clear image of the retina fundus</li>
+                    <li>Add any relevant notes about the patient's condition</li>
+                    <li>Click "Upload and Analyze" to process the image</li>
+                </ol>
+                <p class="text-muted">
+                    <strong>Note:</strong> For best results, use high-quality images with proper illumination.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

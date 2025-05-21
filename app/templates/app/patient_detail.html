@@ -1,0 +1,124 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <!-- Patient Information Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4>Patient Details</h4>
+                <a href="{% url 'history' %}" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Basic Information</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Patient ID</th>
+                            <td>{{ patient.patient_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Full Name</th>
+                            <td>{{ patient.first_name }} {{ patient.last_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date of Birth</th>
+                            <td>{{ patient.date_of_birth }}</td>
+                        </tr>
+                        <tr>
+                            <th>Gender</th>
+                            <td>{{ patient.get_gender_display }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5>Contact Information</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Phone</th>
+                            <td>{{ patient.phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>{{ patient.email|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td>{{ patient.address|default:"-"|linebreaks }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <h5>Medical History</h5>
+                <div class="card">
+                    <div class="card-body">
+                        {{ patient.medical_history|default:"No medical history recorded"|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            Created on {{ patient.created_at }} by Dr. {{ patient.created_by.get_full_name }}
+        </div>
+    </div>
+
+    <!-- Retina Images Section -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4>Retina Scans</h4>
+                <a href="{% url 'upload' %}?patient_id={{ patient.id }}" class="btn btn-light btn-sm">
+                    <i class="bi bi-plus-circle"></i> Add New Scan
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if images %}
+                <div class="row">
+                    {% for image in images %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <img src="{{ image.image.url }}" class="card-img-top" alt="Retina scan" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">Scan {{ forloop.counter }}</h5>
+                                <p class="card-text">
+                                    <span class="badge 
+                                        {% if image.stage == 0 %}bg-success
+                                        {% elif image.stage == 1 %}bg-info
+                                        {% elif image.stage == 2 %}bg-warning
+                                        {% elif image.stage == 3 %}bg-danger
+                                        {% else %}bg-dark{% endif %}">
+                                        {{ image.get_stage_display }}
+                                    </span>
+                                    <br>
+                                    Confidence: {{ image.confidence|floatformat:2 }}%
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted">
+                                    Analyzed on {{ image.uploaded_at|date:"M d, Y" }}
+                                </small>
+                                <a href="{% url 'result' image.id %}" class="btn btn-sm btn-outline-primary float-end">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No retina scans available for this patient.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
