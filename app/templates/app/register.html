@@ -1,26 +1,514 @@
-{% extends 'app/base.html' %}
-{% load crispy_forms_tags %}
-
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="text-center">Doctor Registration</h4>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Registration - Diabetic Retinopathy App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --dark-bg: #111827;
+            --input-bg: #1e293b;
+            --text-light: #ffffff;
+            --text-secondary: #9ca3af;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .register-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .register-form-section {
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            width: 80%;
+            padding: 2rem 4rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .image-section {
+            width: 20%;
+            overflow: hidden;
+        }
+        
+        .image-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .app-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .app-logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .app-logo h2 {
+            font-size: 1.6rem;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .greeting {
+            margin-bottom: 1.5rem;
+        }
+        
+        .greeting h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .greeting p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--input-bg);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .step.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .step.completed {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background-color: var(--input-bg);
+            margin-top: 19px;
+            transition: all 0.3s;
+        }
+        
+        .step-line.completed {
+            background-color: var(--primary-color);
+        }
+        
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: var(--input-bg);
+            border: 1px solid #374151;
+            border-radius: 0.375rem;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .phone-input {
+            display: flex;
+        }
+        
+        .country-code {
+            background-color: var(--input-bg);
+            border: 1px solid #374151;
+            border-radius: 0.375rem 0 0 0.375rem;
+            padding: 0 0.75rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+        }
+        
+        .phone-input .form-control {
+            border-radius: 0 0.375rem 0.375rem 0;
+            border-left: none;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-secondary {
+            background-color: var(--input-bg);
+            color: var(--text-light);
+            border: 1px solid #374151;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #374151;
+        }
+        
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .file-upload input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-color: var(--input-bg);
+            border: 2px dashed #374151;
+            border-radius: 0.375rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        
+        .file-upload-label:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .footer {
+            margin-top: auto;
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .register-container {
+                flex-direction: column;
+            }
+            
+            .register-form-section {
+                width: 100%;
+                height: 100%;
+                padding: 1.5rem;
+            }
+            
+            .image-section {
+                display: none;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-form-section">
+            <div class="greeting">
+                <h1>Join Us 👨‍⚕️</h1>
+                <p>Create your doctor account to get started.</p>
             </div>
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Register</button>
+            
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step-1">1</div>
+                <div class="step-line" id="line-1"></div>
+                <div class="step" id="step-2">2</div>
+                <div class="step-line" id="line-2"></div>
+                <div class="step" id="step-3">3</div>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" id="registrationForm">
+                {% csrf_token %}
+                
+                <!-- Step 1: Basic Information -->
+                <div class="form-step active" id="step-content-1">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                        </div>
                     </div>
-                </form>
-                <div class="mt-3 text-center">
-                    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+                    
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
                 </div>
+                
+                <!-- Step 2: Professional Information -->
+                <div class="form-step" id="step-content-2">
+                    <div class="form-group">
+                        <label for="hospital">Hospital/Clinic</label>
+                        <input type="text" class="form-control" id="hospital" name="hospital" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="license_number">Medical License Number</label>
+                        <input type="text" class="form-control" id="license_number" name="license_number" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone_number">Phone Number</label>
+                        <div class="phone-input">
+                            <div class="country-code">+1</div>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="Enter phone number" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Security & Profile -->
+                <div class="form-step" id="step-content-3">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password1">Password</label>
+                            <input type="password" class="form-control" id="password1" name="password1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password2">Confirm Password</label>
+                            <input type="password" class="form-control" id="password2" name="password2" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile_picture">Profile Picture (Optional)</label>
+                        <div class="file-upload">
+                            <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                            <label for="profile_picture" class="file-upload-label">
+                                <div>
+                                    <div>📷</div>
+                                    <div>Click to upload profile picture</div>
+                                    <small>PNG, JPG up to 5MB</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">Previous</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">Register</button>
+                </div>
+            </form>
+            
+            <div class="login-link">
+                <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+            </div>
+            
+            <div class="footer">
+                <div>© 2025 Diabetic Retinopathy App</div>
+                <a href="#">Admin</a>
             </div>
         </div>
+        
+        <div class="image-section">
+            <img src="/static/app/images/register-img.png" alt="Medical Team">
+        </div>
     </div>
-</div>
-{% endblock %}
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        function showStep(step) {
+            // Hide all steps
+            for (let i = 1; i <= totalSteps; i++) {
+                document.getElementById(`step-content-${i}`).classList.remove('active');
+                document.getElementById(`step-${i}`).classList.remove('active');
+                if (i < step) {
+                    document.getElementById(`step-${i}`).classList.add('completed');
+                    if (i < totalSteps) {
+                        document.getElementById(`line-${i}`).classList.add('completed');
+                    }
+                } else {
+                    document.getElementById(`step-${i}`).classList.remove('completed');
+                    if (i < totalSteps) {
+                        document.getElementById(`line-${i}`).classList.remove('completed');
+                    }
+                }
+            }
+            
+            // Show current step
+            document.getElementById(`step-content-${step}`).classList.add('active');
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            // Update buttons
+            document.getElementById('prevBtn').style.display = step === 1 ? 'none' : 'block';
+            document.getElementById('nextBtn').style.display = step === totalSteps ? 'none' : 'block';
+            document.getElementById('submitBtn').style.display = step === totalSteps ? 'block' : 'none';
+        }
+
+        function validateStep(step) {
+            const stepElement = document.getElementById(`step-content-${step}`);
+            const inputs = stepElement.querySelectorAll('input[required]');
+            
+            for (let input of inputs) {
+                if (!input.value.trim()) {
+                    input.focus();
+                    return false;
+                }
+            }
+            
+            if (step === 3) {
+                const password1 = document.getElementById('password1').value;
+                const password2 = document.getElementById('password2').value;
+                if (password1 !== password2) {
+                    alert('Passwords do not match!');
+                    document.getElementById('password2').focus();
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (validateStep(currentStep)) {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+
+        // File upload preview
+        document.getElementById('profile_picture').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.querySelector('.file-upload-label');
+            
+            if (file) {
+                label.innerHTML = `
+                    <div>
+                        <div>✓</div>
+                        <div>${file.name}</div>
+                        <small>File selected</small>
+                    </div>
+                `;
+                label.style.borderColor = 'var(--primary-color)';
+                label.style.color = 'var(--primary-color)';
+            }
+        });
+
+        // Initialize
+        showStep(1);
+    </script>
+</body>
+</html>

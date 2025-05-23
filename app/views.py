@@ -7,6 +7,11 @@ from .models import Patient, RetinaImage
 from .utils import DRModel
 import os
 from django.conf import settings
+from .charts import get_chart_data 
+import os
+from django.conf import settings
+import json
+from datetime import datetime
 
 dr_model = DRModel()
 
@@ -40,16 +45,46 @@ def profile(request):
 
 @login_required
 def dashboard(request):
-    total_patients = Patient.objects.filter(created_by=request.user).count()
-    recent_patients = Patient.objects.filter(created_by=request.user).order_by('-created_at')[:5]
-    recent_images = RetinaImage.objects.filter(analyzed_by=request.user).order_by('-uploaded_at')[:5]
-    
-    context = {
-        'total_patients': total_patients,
-        'recent_patients': recent_patients,
-        'recent_images': recent_images,
-    }
-    return render(request, 'app/dashboard.html', context)
+    try:
+        # Basic stats
+        total_patients = Patient.objects.filter(created_by=request.user).count()
+        recent_patients = Patient.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+        recent_images = RetinaImage.objects.filter(analyzed_by=request.user).order_by('-uploaded_at')[:5]
+        
+        # Get chart data
+        chart_data = get_chart_data(request.user)
+        
+        # Prepare context with properly formatted JSON data
+        context = {
+            'total_patients': total_patients,
+            'recent_patients': recent_patients,
+            'recent_images': recent_images,
+            'total_analyses': RetinaImage.objects.filter(analyzed_by=request.user).count(),
+            'high_risk_cases': RetinaImage.objects.filter(analyzed_by=request.user, stage__gte=3).count(),
+            'this_month_analyses': RetinaImage.objects.filter(
+                analyzed_by=request.user,
+                uploaded_at__month=datetime.now().month,
+                uploaded_at__year=datetime.now().year
+            ).count(),
+            'stage_data': json.dumps(chart_data['stage_data'].get('data', [])),
+            'monthly_labels': json.dumps(chart_data['monthly_data'].get('labels', [])),
+            'monthly_data': json.dumps(chart_data['monthly_data'].get('data', [])),
+            'chart_errors': {
+                'stage': chart_data['stage_data'].get('error', ''),
+                'monthly': chart_data['monthly_data'].get('error', '')
+            }
+        }
+        return render(request, 'app/dashboard.html', context)
+        
+    except Exception as e:
+        return render(request, 'app/dashboard.html', {
+            'chart_errors': {
+                'general': str(e),
+                'stage': "Error loading dashboard",
+                'monthly': "Error loading dashboard"
+            }
+        })
+
 
 @login_required
 def patient_history(request):

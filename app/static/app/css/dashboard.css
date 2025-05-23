@@ -1,0 +1,442 @@
+/* Import Google Font - Inter (Professional, Medical-grade Typography) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Root Variables */
+:root {
+    --primary-color: #2ecc71;
+    --primary-light: #58d68d;
+    --primary-dark: #27ae60;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --dark-color: #343a40;
+    --light-gray: #f8f9fa;
+    --medium-gray: #6c757d;
+    --border-color: #dee2e6;
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+}
+
+/* Override Bootstrap defaults with medical-grade typography */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #2c3e50;
+    background-color: #f7f9fc;
+}
+
+/* Typography Improvements */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: #1a202c;
+}
+
+h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+}
+
+h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+h6 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #718096;
+}
+
+p {
+    color: #4a5568;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Welcome Section Enhancement */
+.container-fluid .d-flex.justify-content-between.align-items-center {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-bottom: 2px solid #e2e8f0;
+    padding: var(--spacing-lg) var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.container-fluid .d-flex h2 {
+    color: #1a202c;
+    font-weight: 700;
+    font-size: 1.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.container-fluid .d-flex p.text-muted {
+    color: #64748b;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+/* Enhanced Buttons */
+.btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    border: none;
+    box-shadow: none;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: none;
+}
+
+.btn-lg {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.btn-sm {
+    padding: 0.375rem 0.875rem;
+    font-size: 0.8125rem;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.btn-outline-success {
+    color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-outline-success:hover {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #ced4da;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+/* Enhanced Alert Styles */
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.alert-danger {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border-left: 4px solid #dc2626;
+}
+
+.alert-warning {
+    background-color: #fffbeb;
+    color: #d97706;
+    border-left: 4px solid #f59e0b;
+}
+
+/* Stats Cards Enhancement */
+.card {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
+    background-color: white;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: var(--card-shadow-hover);
+}
+
+.card-body {
+    padding: var(--spacing-lg);
+}
+
+/* Stats Cards Specific Styling */
+.row.g-4.p-4 .card {
+    height: 100%;
+    border-left: 4px solid transparent;
+}
+
+.row.g-4.p-4 .col-xl-3:nth-child(1) .card {
+    border-left-color: var(--primary-color);
+}
+
+.row.g-4.p-4 .col-xl-3:nth-child(2) .card {
+    border-left-color: var(--success-color);
+}
+
+.row.g-4.p-4 .col-xl-3:nth-child(3) .card {
+    border-left-color: var(--warning-color);
+}
+
+.row.g-4.p-4 .col-xl-3:nth-child(4) .card {
+    border-left-color: var(--info-color);
+}
+
+/* Stats Card Content */
+.card-body h6.text-uppercase {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #718096;
+    margin-bottom: 0.75rem;
+}
+
+.card-body h2 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.2;
+}
+
+/* Icon Containers */
+.rounded-circle.bg-primary.bg-opacity-10 {
+    width: 56px;
+    height: 56px;
+    background-color: rgba(46, 204, 113, 0.1) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.rounded-circle.bg-success.bg-opacity-10 {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+.rounded-circle.bg-warning.bg-opacity-10 {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.rounded-circle.bg-info.bg-opacity-10 {
+    background-color: rgba(23, 162, 184, 0.1) !important;
+}
+
+.rounded-circle i {
+    font-size: 1.5rem;
+}
+
+/* Badge Enhancements */
+.badge {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--border-radius);
+}
+
+.badge.bg-warning {
+    background-color: #fbbf24 !important;
+    color: #92400e;
+}
+
+.badge.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Chart Cards */
+.row.g-4.px-4.pb-4 .card {
+    border-top: 3px solid var(--primary-color);
+}
+
+.card-header {
+    background-color: #fafbfc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.card-header h5 {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin-bottom: 0;
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    padding: var(--spacing-sm);
+}
+
+/* Recent Activity Cards */
+.row.g-4.px-4.pb-4 .card .card-header {
+    background-color: white !important;
+    border-bottom: 1px solid #e2e8f0;
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+/* List Groups */
+.list-group-flush .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 0;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item .d-flex {
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.list-group-item .d-flex:hover {
+    background-color: #fafbfc;
+}
+
+/* Recent Activity Icons */
+.list-group-item .rounded-circle {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.list-group-item h6 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 0.25rem;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.list-group-item p.text-muted {
+    font-size: 0.8125rem;
+    color: #718096;
+    margin-bottom: 0;
+}
+
+/* Empty State Styling */
+.text-center.py-4 {
+    padding: var(--spacing-xl) var(--spacing-lg) !important;
+}
+
+.text-center.py-4 i {
+    color: #cbd5e0;
+    margin-bottom: var(--spacing-md);
+}
+
+.text-center.py-4 p {
+    color: #718096;
+    font-size: 0.9375rem;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Small Text Improvements */
+.small {
+    font-size: 0.8125rem;
+    color: #64748b;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container-fluid .d-flex.justify-content-between.align-items-center {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .container-fluid .d-flex h2 {
+        font-size: 1.5rem;
+    }
+    
+    .card-body {
+        padding: var(--spacing-md);
+    }
+    
+    .card-body h2 {
+        font-size: 1.875rem;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9375rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-body h2 {
+        font-size: 1.625rem;
+    }
+    
+    .container-fluid .d-flex h2 {
+        font-size: 1.375rem;
+    }
+}
+
+/* Focus States for Accessibility */
+.btn:focus,
+.btn:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+/* Text Color Utilities Enhancement */
+.text-muted {
+    color: #64748b !important;
+}
+
+.text-dark {
+    color: #1a202c !important;
+}
+
+/* Container Spacing */
+.container-fluid.p-0 {
+    background-color: #f7f9fc;
+}
+
+/* Additional Professional Touches */
+.fw-semibold {
+    font-weight: 600 !important;
+}
+
+.text-uppercase {
+    letter-spacing: 0.05em;
+}

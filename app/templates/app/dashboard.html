@@ -1,68 +1,332 @@
 {% extends 'app/base.html' %}
 {% load static %}
 
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<link href="/static/app/css/dashboard.css" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'app/js/dashboard.js' %}"></script>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <h2>Welcome, {{ user.get_full_name }}</h2>
-        <p class="lead">Diabetic Retinopathy Detection Dashboard</p>
-    </div>
-    <div class="col-md-4 text-end">
-        <a href="{% url 'upload' %}" class="btn btn-primary">
-            <i class="bi bi-upload"></i> Upload New Image
-        </a>
-    </div>
-</div>
+<div class="container-fluid p-0">
 
-<div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Total Patients</h5>
-                <h2 class="card-text">{{ total_patients }}</h2>
-                <a href="{% url 'history' %}" class="btn btn-sm btn-outline-primary">View All</a>
+
+    <!-- Error Messages -->
+    {% if chart_errors.general %}
+    <div class="alert alert-danger m-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ chart_errors.general }}
+    </div>
+    {% endif %}
+
+    <!-- Stats Cards -->
+    <div class="row g-4 p-3">
+        <!-- Total Patients -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-uppercase text-muted mb-2">Total Patients</h6>
+                            <h2 class="mb-0">{{ total_patients }}</h2>
+                        </div>
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                            <i class="bi bi-people-fill text-primary"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'history' %}" class="btn btn-sm btn-outline-primary mt-3">View All</a>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                Recent Patients
+        
+        <!-- Total Analyses -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-uppercase text-muted mb-2">Total Analyses</h6>
+                            <h2 class="mb-0">{{ total_analyses }}</h2>
+                        </div>
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3">
+                            <i class="bi bi-eye-fill text-success"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'upload' %}" class="btn btn-sm btn-outline-success mt-3">New Analysis</a>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for patient in recent_patients %}
-                    <a href="{% url 'patient_detail' patient.id %}" class="list-group-item list-group-item-action">
-                        {{ patient.first_name }} {{ patient.last_name }} ({{ patient.patient_id }})
-                    </a>
-                    {% empty %}
-                    <div class="list-group-item">No patients found</div>
-                    {% endfor %}
+        </div>
+        
+        <!-- High Risk Cases -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-uppercase text-muted mb-2">High Risk Cases</h6>
+                            <h2 class="mb-0">{{ high_risk_cases }}</h2>
+                        </div>
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                            <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning text-dark mt-3">Requires Attention</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- This Month -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-uppercase text-muted mb-2">This Month</h6>
+                            <h2 class="mb-0">{{ this_month_analyses }}</h2>
+                        </div>
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3">
+                            <i class="bi bi-calendar-check-fill text-info"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">Analyses completed</p>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                Recent Analyses
+
+    <!-- Charts Section -->
+    <div class="row g-4 px-4 pb-4">
+        <!-- Stage Distribution -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">DR Stage Distribution</h5>
+                </div>
+                <div class="card-body">
+                    {% if chart_errors.stage %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {{ chart_errors.stage }}
+                    </div>
+                    {% endif %}
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="stageChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for image in recent_images %}
-                    <a href="{% url 'result' image.id %}" class="list-group-item list-group-item-action">
-                        {{ image.patient.first_name }} - Stage {{ image.get_stage_display }}
-                        <span class="badge bg-primary float-end">{{ image.confidence|floatformat:2 }}%</span>
-                    </a>
-                    {% empty %}
-                    <div class="list-group-item">No analyses found</div>
-                    {% endfor %}
+        </div>
+        
+        <!-- Monthly Trend -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">Monthly Analysis Trend</h5>
+                </div>
+                <div class="card-body">
+                    {% if chart_errors.monthly %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {{ chart_errors.monthly }}
+                    </div>
+                    {% endif %}
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row g-4 px-4 pb-4">
+        <!-- Recent Patients -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">Recent Patients</h5>
+                    <a href="{% url 'history' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_patients %}
+                        <div class="list-group list-group-flush">
+                            {% for patient in recent_patients %}
+                            <div class="list-group-item border-0">
+                                <div class="d-flex align-items-center p-3">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                                        <i class="bi bi-person-fill text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ patient.first_name }} {{ patient.last_name }}</h6>
+                                        <p class="mb-0 text-muted small">ID: {{ patient.patient_id }}</p>
+                                    </div>
+                                    <a href="{% url 'patient_detail' patient.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted">No patients found</p>
+                            <a href="{% url 'add_patient' %}" class="btn btn-primary btn-sm">Add First Patient</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Analyses -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">Recent Analyses</h5>
+                    <a href="{% url 'upload' %}" class="btn btn-sm btn-outline-primary">New Analysis</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_images %}
+                        <div class="list-group list-group-flush">
+                            {% for image in recent_images %}
+                            <div class="list-group-item border-0">
+                                <div class="d-flex align-items-center p-3">
+                                    <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3">
+                                        <i class="bi bi-eye-fill text-success"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ image.patient.first_name }} {{ image.patient.last_name }}</h6>
+                                        <p class="mb-0 text-muted small">
+                                            Stage {{ image.get_stage_display }} • 
+                                            {{ image.uploaded_at|date:"M j, Y" }}
+                                        </p>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-primary">{{ image.confidence|floatformat:1 }}%</span>
+                                        <div class="mt-1">
+                                            <a href="{% url 'result' image.id %}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-eye text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted">No analyses found</p>
+                            <a href="{% url 'upload' %}" class="btn btn-primary btn-sm">Start First Analysis</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Initialize chart data with proper error handling
+    document.addEventListener('DOMContentLoaded', function() {
+        // Helper function to safely parse JSON
+        function tryParseJSON(jsonString) {
+            try {
+                return jsonString ? JSON.parse(jsonString) : [];
+            } catch (e) {
+                console.error("Failed to parse JSON:", jsonString);
+                return [];
+            }
+        }
+
+        // Safely get chart data from Django template
+        const chartData = {
+            stage: {
+                labels: ['No DR', 'Mild', 'Moderate', 'Severe', 'Proliferative DR'],
+                data: tryParseJSON('{{ stage_data|escapejs }}'),
+                error: "{{ chart_errors.stage|default:''|escapejs }}"
+            },
+            monthly: {
+                labels: tryParseJSON('{{ monthly_labels|escapejs }}'),
+                data: tryParseJSON('{{ monthly_data|escapejs }}'),
+                error: "{{ chart_errors.monthly|default:''|escapejs }}"
+            }
+        };
+
+        console.log("Chart Data Loaded:", chartData);
+        
+        // Function to show error messages
+        function showChartError(chartId, message) {
+            const container = document.getElementById(chartId)?.closest('.card-body');
+            if (container) {
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        ${message || 'Chart loading failed'}
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize Stage Chart
+        if (chartData.stage.data.length > 0 && !chartData.stage.error) {
+            try {
+                const ctx = document.getElementById('stageChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartData.stage.labels,
+                        datasets: [{
+                            data: chartData.stage.data,
+                            backgroundColor: [
+                                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing stage chart:", error);
+                showChartError('stageChart', "Failed to load stage chart");
+            }
+        } else {
+            showChartError('stageChart', chartData.stage.error || "No stage data available");
+        }
+
+        // Initialize Monthly Trend Chart
+        if (chartData.monthly.data.length > 0 && !chartData.monthly.error) {
+            try {
+                const ctx = document.getElementById('monthlyChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartData.monthly.labels,
+                        datasets: [{
+                            label: "Analyses",
+                            data: chartData.monthly.data,
+                            borderColor: '#4e73df',
+                            backgroundColor: 'rgba(78, 115, 223, 0.05)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing monthly chart:", error);
+                showChartError('monthlyChart', "Failed to load monthly chart");
+            }
+        } else {
+            showChartError('monthlyChart', chartData.monthly.error || "No monthly data available");
+        }
+    });
+</script>
 {% endblock %}
