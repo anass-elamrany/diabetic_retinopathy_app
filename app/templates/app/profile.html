@@ -41,9 +41,35 @@
                                     <i class="bi bi-camera-fill"></i>
                                 </div>
                             </div>
-                            <div class="mt-3">
-                                {{ form.profile_picture.label_tag }}
-                                {{ form.profile_picture }}
+                            
+                            <!-- Profile Picture Controls -->
+                            <div class="profile-picture-controls mt-3">
+                                <div class="profile-picture-buttons d-flex justify-content-center gap-2 mb-3">
+                                    <button type="button" class="btn btn-change-picture" onclick="document.getElementById('profile-picture-input').click()">
+                                        <i class="bi bi-camera me-1"></i>
+                                        Change Photo
+                                    </button>
+                                    {% if user.profile_picture %}
+                                        <button type="button" class="btn btn-delete-picture" onclick="confirmDeletePicture()">
+                                            <i class="bi bi-trash me-1"></i>
+                                            Delete
+                                        </button>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Hidden file input -->
+                                <div class="d-none">
+                                    {{ form.profile_picture.label_tag }}
+                                    <input type="file" id="profile-picture-input" name="profile_picture" accept="image/*" onchange="previewImage(this)">
+                                </div>
+                                
+                                <!-- File info display -->
+                                <div class="file-info mt-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Supported formats: JPG, PNG, GIF (Max 5MB)
+                                    </small>
+                                </div>
                             </div>
                         </div>
 
@@ -111,15 +137,36 @@
 
                         <!-- Action Buttons -->
                         <div class="d-flex justify-content-end gap-3 pt-4 border-top">
-                            <button type="button" class="btn btn-outline-secondary btn-lg">
-                                <i class="bi bi-arrow-left me-2"></i> Cancel
-                            </button>
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="bi bi-check-circle me-2"></i> Update Profile
                             </button>
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deletePhotoModal" tabindex="-1" aria-labelledby="deletePhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="deletePhotoModalLabel">
+                    <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                    Delete Profile Picture
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Are you sure you want to delete your profile picture? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="deletePicture()">
+                    <i class="bi bi-trash me-1"></i> Delete Picture
+                </button>
             </div>
         </div>
     </div>
@@ -240,6 +287,125 @@
         border-color: #4285f4;
     }
     
+    /* Profile Picture Controls */
+    .profile-picture-controls {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .profile-picture-buttons {
+        flex-wrap: wrap;
+    }
+    
+    .btn-change-picture {
+        background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+    }
+    
+    .btn-change-picture:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
+        background: linear-gradient(135deg, #3367d6 0%, #2d8f47 100%);
+    }
+    
+    .btn-change-picture:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+    }
+    
+    .btn-delete-picture {
+        background: linear-gradient(135deg, #ea4335 0%, #d33b2c 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(234, 67, 53, 0.3);
+    }
+    
+    .btn-delete-picture:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(234, 67, 53, 0.4);
+        background: linear-gradient(135deg, #d33b2c 0%, #b52d20 100%);
+    }
+    
+    .btn-delete-picture:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 12px rgba(234, 67, 53, 0.3);
+    }
+    
+    /* File info styling */
+    .file-info {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 8px 12px;
+        border-left: 4px solid #4285f4;
+    }
+    
+    .file-info small {
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    /* Modal styling */
+    .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+    
+    .modal-header {
+        padding: 1.5rem 1.5rem 1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem 1.5rem;
+        color: #495057;
+    }
+    
+    .modal-footer {
+        padding: 1rem 1.5rem 1.5rem;
+    }
+    
+    .modal-title {
+        font-weight: 600;
+        font-size: 18px;
+        color: #212529;
+    }
+    
+    /* Loading state for picture change */
+    .profile-picture-container.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 30px;
+        height: 30px;
+        margin: -15px 0 0 -15px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #4285f4;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
     /* Form Sections */
     .form-section {
         background-color: #ffffff;
@@ -336,6 +502,18 @@
         transform: translateY(-1px);
     }
     
+    .btn-danger {
+        background-color: #ea4335;
+        border-color: #ea4335;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #d33b2c;
+        border-color: #d33b2c;
+        color: white;
+    }
+    
     /* Text styling */
     .text-dark {
         color: #212529 !important;
@@ -390,6 +568,17 @@
         .section-title {
             font-size: 16px;
         }
+        
+        .profile-picture-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-change-picture,
+        .btn-delete-picture {
+            width: 200px;
+            margin-bottom: 0.5rem;
+        }
     }
     
     @media (max-width: 576px) {
@@ -405,6 +594,13 @@
         
         .profile-picture-overlay {
             font-size: 18px;
+        }
+        
+        .btn-change-picture,
+        .btn-delete-picture {
+            width: 150px;
+            padding: 8px 16px;
+            font-size: 12px;
         }
     }
     
@@ -442,5 +638,152 @@
     .form-group select:focus {
         box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.25) !important;
     }
+    
+    .btn-change-picture:focus,
+    .btn-delete-picture:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.25) !important;
+    }
 </style>
+
+<script>
+// Preview image when file is selected
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // Validate file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            input.value = '';
+            return;
+        }
+        
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPG, PNG, or GIF)');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Update the profile picture
+            const profilePicture = document.querySelector('.profile-picture');
+            const profilePlaceholder = document.querySelector('.profile-picture-placeholder');
+            
+            if (profilePicture) {
+                profilePicture.src = e.target.result;
+            } else if (profilePlaceholder) {
+                // Replace placeholder with image
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'profile-picture';
+                img.alt = 'Profile Picture';
+                profilePlaceholder.parentNode.replaceChild(img, profilePlaceholder);
+            }
+            
+            // Update header avatar as well
+            const headerAvatar = document.querySelector('.profile-avatar img');
+            const headerPlaceholder = document.querySelector('.profile-avatar-placeholder');
+            
+            if (headerAvatar) {
+                headerAvatar.src = e.target.result;
+            } else if (headerPlaceholder) {
+                const avatarContainer = headerPlaceholder.parentNode;
+                avatarContainer.innerHTML = '<img src="' + e.target.result + '" alt="Profile Picture" class="rounded-circle">';
+                avatarContainer.className = 'profile-avatar me-3';
+            }
+            
+            // Show delete button if it doesn't exist
+            const deleteBtn = document.querySelector('.btn-delete-picture');
+            if (!deleteBtn) {
+                const changeBtn = document.querySelector('.btn-change-picture');
+                const deleteBtnHtml = `
+                    <button type="button" class="btn btn-delete-picture" onclick="confirmDeletePicture()">
+                        <i class="bi bi-trash me-1"></i>
+                        Delete
+                    </button>
+                `;
+                changeBtn.insertAdjacentHTML('afterend', deleteBtnHtml);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Confirm delete picture
+function confirmDeletePicture() {
+    // Show Bootstrap modal if available, otherwise use confirm
+    const modal = document.getElementById('deletePhotoModal');
+    if (modal && typeof bootstrap !== 'undefined') {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    } else {
+        if (confirm('Are you sure you want to delete your profile picture? This action cannot be undone.')) {
+            deletePicture();
+        }
+    }
+}
+
+// Delete picture function
+function deletePicture() {
+    // Hide modal if open
+    const modal = document.getElementById('deletePhotoModal');
+    if (modal && typeof bootstrap !== 'undefined') {
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) bsModal.hide();
+    }
+    
+    // Clear file input
+    const fileInput = document.getElementById('profile-picture-input');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    
+    // Replace image with placeholder
+    const profilePicture = document.querySelector('.profile-picture');
+    if (profilePicture) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'profile-picture-placeholder';
+        placeholder.innerHTML = '<i class="bi bi-person-fill"></i>';
+        profilePicture.parentNode.replaceChild(placeholder, profilePicture);
+    }
+    
+    // Update header avatar
+    const headerAvatarContainer = document.querySelector('.profile-avatar');
+    if (headerAvatarContainer) {
+        headerAvatarContainer.className = 'profile-avatar-placeholder me-3';
+        headerAvatarContainer.innerHTML = '<i class="bi bi-person-fill"></i>';
+    }
+    
+    // Remove delete button
+    const deleteBtn = document.querySelector('.btn-delete-picture');
+    if (deleteBtn) {
+        deleteBtn.remove();
+    }
+    
+    // Here you would typically send an AJAX request to delete the image from the server
+    // Example:
+    // fetch('/delete-profile-picture/', {
+    //     method: 'POST',
+    //     headers: {
+    //         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    //         'Content-Type': 'application/json',
+    //     },
+    // });
+}
+
+// Add click handler to profile picture container
+document.addEventListener('DOMContentLoaded', function() {
+    const profileContainer = document.querySelector('.profile-picture-container');
+    if (profileContainer) {
+        profileContainer.addEventListener('click', function() {
+            document.getElementById('profile-picture-input').click();
+        });
+    }
+});
+</script>
+
 {% endblock %}

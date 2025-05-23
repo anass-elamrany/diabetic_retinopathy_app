@@ -1,25 +1,27 @@
-{% load static %} 
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Diabetic Retinopathy Detection</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    {% load static %}
-    <link href="{% static 'app/css/dashboard.css' %}" rel="stylesheet" id="dashboard-css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         :root {
-            --primary-color: #2ecc71;
-            --dark-bg: #111827;
-            --sidebar-bg: #1e293b;
-            --hover-bg: #334155;
-            --text-light: #ffffff;
-            --text-secondary: #9ca3af;
-            --border-color: #374151;
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --white: #ffffff;
+            --border: #e2e8f0;
         }
 
         * {
@@ -29,127 +31,86 @@
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f8fafc;
-            color: #1f2937;
-            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
         }
 
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Styles */
+        /* Sidebar */
         .sidebar {
-            width: 280px;
-            background-color: var(--dark-bg);
-            color: var(--text-light);
-            padding: 0;
-            position: fixed;
+            width: 260px;
             height: 100vh;
+            background: var(--white);
+            position: fixed;
             left: 0;
             top: 0;
+            border-right: 1px solid var(--border);
             z-index: 1000;
             transition: transform 0.3s ease;
-            overflow-y: auto;
-        }
-
-        .sidebar.collapsed {
-            transform: translateX(-100%);
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
         }
 
         .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 1.5rem 1.25rem;
+            border-bottom: 1px solid var(--border);
         }
 
         .sidebar-brand {
             display: flex;
             align-items: center;
             text-decoration: none;
-            color: var(--text-light);
+            color: var(--dark);
         }
 
         .sidebar-brand i {
-            width: 32px;
-            height: 32px;
-            background-color: var(--primary-color);
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #3b82f6);
+            color: white;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 12px;
-            font-size: 18px;
+            font-size: 20px;
         }
 
         .sidebar-brand h4 {
             margin: 0;
             font-weight: 600;
-            font-size: 1.2rem;
-        }
-
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 20px;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            display: none;
-        }
-
-        .sidebar-toggle:hover {
-            background-color: var(--hover-bg);
-        }
-
-        .sidebar-nav {
-            padding: 1rem 0;
-        }
-
-        .nav-section {
-            margin-bottom: 2rem;
+            font-size: 1.1rem;
         }
 
         .nav-section-title {
-            padding: 0 1.5rem 0.5rem;
+            padding: 1rem 1.25rem 0.5rem;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
-            color: var(--text-secondary);
-            letter-spacing: 0.05em;
-        }
-
-        .nav-item {
-            margin: 0;
+            color: var(--secondary);
+            letter-spacing: 0.5px;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: var(--text-secondary);
+            padding: 0.75rem 1.25rem;
+            color: var(--secondary);
             text-decoration: none;
             transition: all 0.2s ease;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
+            margin: 0 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
         }
 
         .nav-link:hover {
-            color: var(--text-light);
-            background-color: var(--hover-bg);
+            background: var(--light);
+            color: var(--primary);
         }
 
         .nav-link.active {
-            color: var(--text-light);
-            background-color: var(--primary-color);
-            position: relative;
+            background: var(--primary);
+            color: white;
         }
 
         .nav-link i {
@@ -158,166 +119,144 @@
             font-size: 18px;
         }
 
-        .nav-link .badge {
+        .badge {
             margin-left: auto;
-            background-color: var(--primary-color);
+            background: var(--primary);
+            font-size: 0.7rem;
         }
 
-        /* User Profile Section */
+        /* User Section */
         .sidebar-user {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 1.5rem;
-            border-top: 1px solid var(--border-color);
-            background-color: var(--sidebar-bg);
+            padding: 1.25rem;
+            border-top: 1px solid var(--border);
+            background: var(--light);
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
-            background-color: var(--primary-color);
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 12px;
-            font-size: 18px;
+            margin-right: 10px;
             font-weight: 600;
+            font-size: 14px;
         }
 
         .user-details h6 {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
         }
 
         .user-details p {
             margin: 0;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
+            font-size: 0.75rem;
+            color: var(--secondary);
         }
 
         .user-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .user-action-btn {
             flex: 1;
-            padding: 0.5rem;
+            padding: 0.4rem 0.6rem;
             background: none;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
+            color: var(--secondary);
+            font-size: 0.75rem;
             cursor: pointer;
             transition: all 0.2s ease;
+            font-family: inherit;
         }
 
         .user-action-btn:hover {
-            background-color: var(--hover-bg);
-            color: var(--text-light);
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
         }
 
         /* Main Content */
         .main-content {
-            flex: 1;
-            margin-left: 280px;
+            margin-left: 260px;
             min-height: 100vh;
-            background-color: #f8fafc;
-            transition: margin-left 0.3s ease;
-        }
-
-        .main-content.expanded {
-            margin-left: 0;
         }
 
         .top-header {
             background: white;
-            padding: 1rem 2rem;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .mobile-toggle {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            display: none;
-        }
-
-        .mobile-toggle:hover {
-            background-color: #f3f4f6;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .page-title {
             margin: 0;
             font-size: 1.5rem;
             font-weight: 600;
-            color: #1f2937;
+            color: var(--dark);
         }
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-success {
+            background: var(--success);
+            border-color: var(--success);
         }
 
         .content-area {
-            padding: 2rem;
+            padding: 1.5rem;
         }
 
-        /* Alert Styles */
-        .alert {
-            border: none;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
-
-        /* Responsive Design */
+        /* Mobile */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
             }
-
             .sidebar.show {
                 transform: translateX(0);
             }
-
             .main-content {
                 margin-left: 0;
             }
-
             .mobile-toggle {
-                display: block;
-            }
-
-            .top-header {
-                padding: 1rem;
-            }
-
-            .content-area {
-                padding: 1rem;
+                display: block !important;
             }
         }
 
-        /* Overlay for mobile */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -325,12 +264,18 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.3);
             z-index: 999;
         }
 
         .sidebar-overlay.show {
             display: block;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -341,77 +286,56 @@
             <div class="sidebar-header">
                 <a href="{% url 'dashboard' %}" class="sidebar-brand">
                     <i class="bi bi-eye-fill"></i>
-                    <h4>DR Detection</h4>
+                    <h4>DR Vision</h4>
                 </a>
-                <button class="sidebar-toggle" onclick="toggleSidebar()">
-                    <i class="bi bi-x"></i>
-                </button>
             </div>
 
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Main</div>
-                    <div class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
-                            <i class="bi bi-grid-1x2"></i>
-                            Dashboard
-                        </a>
-                    </div>
-                    <div class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'upload' %}active{% endif %}" href="{% url 'upload' %}">
-                            <i class="bi bi-cloud-upload"></i>
-                            Analyze Image
-                        </a>
-                    </div>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                        <i class="bi bi-grid-1x2"></i> Dashboard
+                    </a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'upload' %}active{% endif %}" href="{% url 'upload' %}">
+                        <i class="bi bi-cloud-upload"></i> Analyze Image
+                    </a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Patients</div>
-                    <div class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'history' %}">
-                            <i class="bi bi-people"></i>
-                            All Patients
-                            <span class="badge">{{ total_patients|default:"0" }}</span>
-                        </a>
-                    </div>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}" href="{% url 'history' %}">
+                        <i class="bi bi-people"></i> All Patients
+                        <span class="badge">{{ total_patients|default:"0" }}</span>
+                    </a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <div class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
-                            <i class="bi bi-person-circle"></i>
-                            Profile
-                        </a>
-                    </div>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+                        <i class="bi bi-person-circle"></i> Profile
+                    </a>
                 </div>
             </div>
 
             <div class="sidebar-user">
                 <div class="user-info">
-                    <div class="user-avatar">
-                        {{ user.get_full_name|first|upper|default:"U" }}
-                    </div>
+                    <div class="user-avatar">{{ user.get_full_name|first|upper|default:"U" }}</div>
                     <div class="user-details">
                         <h6>{{ user.get_full_name|default:user.username }}</h6>
                         <p>{{ user.email|default:"Doctor" }}</p>
                     </div>
                 </div>
                 <div class="user-actions">
-                    <a class="user-action-btn" href="{% url 'profile' %}">
-                        <i class="bi bi-gear"></i> Settings
-                    </a>
-                    <form action="{% url 'logout' %}" method="post" class="d-inline" style="flex: 1;">
+                    <a class="user-action-btn" href="{% url 'profile' %}">Settings</a>
+                    <form action="{% url 'logout' %}" method="post" class="d-inline" style="flex: 1">
                         {% csrf_token %}
-                        <button type="submit" class="user-action-btn w-100">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </button>
+                        <button type="submit" class="user-action-btn w-100">Logout</button>
                     </form>
                 </div>
             </div>
         </nav>
 
-        <!-- Sidebar Overlay for Mobile -->
+        <!-- Sidebar Overlay -->
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
         <!-- Main Content -->
@@ -439,7 +363,6 @@
                         </div>
                     {% endfor %}
                 {% endif %}
-                
                 {% block content %}{% endblock %}
             </div>
         </main>
@@ -448,44 +371,24 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const mainContent = document.getElementById('mainContent');
-            
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("sidebarOverlay");
+
             if (window.innerWidth <= 768) {
-                // Mobile behavior
-                sidebar.classList.toggle('show');
-                overlay.classList.toggle('show');
-            } else {
-                // Desktop behavior
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
+                sidebar.classList.toggle("show");
+                overlay.classList.toggle("show");
             }
         }
 
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.querySelector('.mobile-toggle');
-            
+        document.addEventListener("click", function(event) {
+            const sidebar = document.getElementById("sidebar");
+            const toggle = document.querySelector(".mobile-toggle");
+
             if (window.innerWidth <= 768) {
                 if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
-                    sidebar.classList.remove('show');
-                    document.getElementById('sidebarOverlay').classList.remove('show');
+                    sidebar.classList.remove("show");
+                    document.getElementById("sidebarOverlay").classList.remove("show");
                 }
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const mainContent = document.getElementById('mainContent');
-            
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('show');
-                overlay.classList.remove('show');
-                mainContent.classList.remove('expanded');
             }
         });
     </script>
