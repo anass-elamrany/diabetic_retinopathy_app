@@ -1,0 +1,28 @@
+{% extends 'app/base.html' %}
+{% block meta_title %}Appointments{% endblock %}
+{% block meta_description %}Review upcoming and past patient appointments in DR Vision.{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Appointments</h1><p>Schedule and track patient visits</p></div><a class="button button-primary" href="{% url 'add_appointment' %}">New appointment</a></div>
+<section class="data-panel appointment-panel">
+  <div class="panel-heading"><h2>Upcoming</h2></div>
+  {% for appointment in upcoming %}
+  <div class="appointment-row">
+    <div class="appointment-date"><strong>{{ appointment.scheduled_at|date:"M j" }}</strong><small>{{ appointment.scheduled_at|date:"g:i A" }}</small></div>
+    <div class="appointment-details"><a href="{% url 'patient_detail' appointment.patient.id %}">{{ appointment.patient.first_name }} {{ appointment.patient.last_name }}</a><span>{{ appointment.reason }}</span>{% if appointment.notes %}<small>{{ appointment.notes|truncatewords:18 }}</small>{% endif %}</div>
+    <div class="appointment-actions"><form method="post" action="{% url 'appointment_status' appointment.id %}">{% csrf_token %}<input type="hidden" name="status" value="completed"><button class="button button-secondary" type="submit">Complete</button></form><form method="post" action="{% url 'appointment_status' appointment.id %}">{% csrf_token %}<input type="hidden" name="status" value="cancelled"><button class="button button-quiet" type="submit">Cancel</button></form></div>
+  </div>
+  {% empty %}<div class="panel-empty">No upcoming appointments. <a href="{% url 'add_appointment' %}">Schedule one</a>.</div>{% endfor %}
+</section>
+<section class="data-panel appointment-panel">
+  <div class="panel-heading"><h2>Past and closed</h2></div>
+  {% for appointment in other %}
+  <div class="appointment-row">
+    <div class="appointment-date"><strong>{{ appointment.scheduled_at|date:"M j, Y" }}</strong><small>{{ appointment.scheduled_at|date:"g:i A" }}</small></div>
+    <div class="appointment-details"><a href="{% url 'patient_detail' appointment.patient.id %}">{{ appointment.patient.first_name }} {{ appointment.patient.last_name }}</a><span>{{ appointment.reason }}</span></div>
+    <span class="status-text status-{{ appointment.status }}">{{ appointment.get_status_display }}</span>
+    {% if appointment.status == 'scheduled' %}<div class="appointment-actions"><form method="post" action="{% url 'appointment_status' appointment.id %}">{% csrf_token %}<input type="hidden" name="status" value="completed"><button class="button button-secondary" type="submit">Complete</button></form><form method="post" action="{% url 'appointment_status' appointment.id %}">{% csrf_token %}<input type="hidden" name="status" value="cancelled"><button class="button button-quiet" type="submit">Cancel</button></form></div>{% endif %}
+  </div>
+  {% empty %}<div class="panel-empty">No past appointments.</div>{% endfor %}
+</section>
+{% endblock %}

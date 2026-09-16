@@ -1,0 +1,20 @@
+{% extends 'app/base.html' %}
+{% block meta_title %}New appointment{% endblock %}
+{% block meta_description %}Schedule a patient appointment in DR Vision.{% endblock %}
+{% block page_title %}New appointment{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>New appointment</h1><p>Schedule a visit for an existing patient.</p></div><a class="button button-secondary" href="{% url 'appointments' %}">Back to appointments</a></div>
+{% if not has_patients %}<div class="notice notice-warning">Add a patient before scheduling an appointment. <a href="{% url 'add_patient' %}">Add patient</a></div>{% endif %}
+<form method="post" class="form-layout">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="notice notice-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+  <section class="section-block"><h2>Visit details</h2><div class="form-grid">
+    {% include 'app/_field.html' with field=form.patient %}
+    {% include 'app/_field.html' with field=form.scheduled_at %}
+  </div>
+  {% include 'app/_field.html' with field=form.reason %}
+  {% include 'app/_field.html' with field=form.notes %}
+  </section>
+  <div class="form-actions"><a class="button button-secondary" href="{% url 'appointments' %}">Cancel</a><button class="button button-primary" type="submit" {% if not has_patients %}disabled{% endif %}>Schedule appointment</button></div>
+</form>
+{% endblock %}

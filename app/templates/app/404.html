@@ -1,0 +1,11 @@
+{% extends 'app/auth_base.html' %}
+{% block meta_title %}Page not found{% endblock %}
+{% block meta_description %}The requested DR Vision page could not be found.{% endblock %}
+{% block content %}
+<div class="auth-form-wrap error-page">
+  <p class="error-code">404</p>
+  <h1>Page not found</h1>
+  <p class="lede">The page may have moved or the address may be incorrect.</p>
+  <a class="button button-primary" href="{% url 'dashboard' %}">Go to dashboard</a>
+</div>
+{% endblock %}

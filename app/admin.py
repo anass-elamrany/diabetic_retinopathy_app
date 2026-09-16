@@ -1,7 +1,7 @@
 # app/admin.py
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Patient, RetinaImage
+from .models import User, Patient, RetinaImage, Appointment
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'hospital', 'is_staff')
@@ -15,3 +15,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Patient)
 admin.site.register(RetinaImage)
+admin.site.register(Appointment)

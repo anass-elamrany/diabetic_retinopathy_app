@@ -1,20 +1,34 @@
-import torch
-import torch.nn as nn
-import numpy as np
-import cv2
-from torchvision import transforms
 from PIL import Image
 import os
 
 class DRModel:
     def __init__(self):
+        self.available = False
+        self.unavailable_reason = ""
         self.model = self._load_model()
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
+        if self.available:
+            from torchvision import transforms
+
+            self.transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+        else:
+            self.transform = None
         
     def _load_model(self):
+        try:
+            import torch
+            import torch.nn as nn
+        except ImportError as exc:
+            self.unavailable_reason = f"ML dependencies are not installed: {exc}"
+            return None
+
+        model_path = os.path.join(os.path.dirname(__file__), 'model_weights', 'best_model.pth')
+        if not os.path.exists(model_path):
+            self.unavailable_reason = f"Model weights not found at {model_path}"
+            return None
+
         # Define your model architecture (must match training)
         class DRNet(nn.Module):
             def __init__(self):
@@ -47,13 +61,16 @@ class DRModel:
                 return x
 
         model = DRNet()
-        model_path = os.path.join(os.path.dirname(__file__), 'model_weights', 'best_model.pth')
-        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'), weights_only=True))
         model.eval()
+        self.available = True
         return model
 
     def preprocess(self, image_path):
         """Apply the same preprocessing as during training"""
+        import cv2
+        import numpy as np
+
         img = cv2.imread(image_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         
@@ -79,6 +96,11 @@ class DRModel:
 
     def predict(self, image_path):
         """Make prediction on a single image"""
+        if not self.available:
+            raise RuntimeError(self.unavailable_reason)
+
+        import torch
+
         img = self.preprocess(image_path)
         img_tensor = self.transform(img).unsqueeze(0)
         

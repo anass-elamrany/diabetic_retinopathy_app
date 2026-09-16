@@ -1,0 +1,21 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block meta_title %}DR Vision{% endblock %} | DR Vision</title>
+  <meta name="description" content="{% block meta_description %}Access DR Vision to manage patient records and retinal images.{% endblock %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'app/images/favicon.svg' %}">
+  <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+</head>
+<body class="auth-body">
+  <main class="auth-layout">
+    <section class="auth-content">
+      <a class="auth-brand" href="{% url 'login' %}"><span class="brand-mark" aria-hidden="true"></span>DR Vision</a>
+      {% block content %}{% endblock %}
+    </section>
+    <div class="auth-visual" role="img" aria-label="Medical team"></div>
+  </main>
+</body>
+</html>

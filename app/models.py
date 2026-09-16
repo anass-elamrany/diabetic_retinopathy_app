@@ -58,3 +58,25 @@ class RetinaImage(models.Model):
     
     def __str__(self):
         return f"Image for {self.patient} - Stage {self.stage}"
+
+
+class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='appointments')
+    scheduled_at = models.DateTimeField()
+    reason = models.CharField(max_length=200)
+    notes = models.TextField(blank=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='scheduled')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['scheduled_at']
+
+    def __str__(self):
+        return f"{self.patient} on {self.scheduled_at:%Y-%m-%d %H:%M}"

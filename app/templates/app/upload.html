@@ -1,156 +1,21 @@
 {% extends 'app/base.html' %}
-{% load crispy_forms_tags %}
-
+{% block meta_title %}Image analysis{% endblock %}
+{% block meta_description %}Upload a retinal image for a patient and view its analysis in DR Vision.{% endblock %}
+{% block page_title %}Image analysis{% endblock %}
 {% block content %}
-<div class="row m-0">
-    <div class="col-12 p-0">
-        <div class="card border-0 rounded-0">
-            <div class="card-header bg-white border-bottom">
-                <h4 class="mb-0">Upload Retina Image</h4>
-            </div>
-            <div class="card-body p-4">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-upload me-2"></i> Upload and Analyze
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <div class="card border-0 rounded-0 border-top">
-            <div class="card-header bg-white border-bottom">
-                <h5 class="mb-0">Upload Instructions</h5>
-            </div>
-            <div class="card-body p-4">
-                <ol class="mb-3">
-                    <li class="mb-2">Select the patient from the dropdown</li>
-                    <li class="mb-2">Upload a clear image of the retina fundus</li>
-                    <li class="mb-2">Add any relevant notes about the patient's condition</li>
-                    <li class="mb-2">Click "Upload and Analyze" to process the image</li>
-                </ol>
-                <div class="alert alert-info border-0 bg-light">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>Note:</strong> For best results, use high-quality images with proper illumination.
-                </div>
-            </div>
-        </div>
+<div class="page-heading"><div><h1>Image analysis</h1><p>Upload a retinal image for an existing patient.</p></div><a class="button button-secondary" href="{% url 'add_patient' %}">Add patient</a></div>
+{% if not model_available %}<div class="notice notice-error" role="alert"><strong>Analysis unavailable.</strong> A compatible trained model is not installed. Uploads are disabled until it is configured.</div>{% endif %}
+{% if form.non_field_errors %}<div class="notice notice-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+<form method="post" enctype="multipart/form-data" class="form-layout">
+  {% csrf_token %}
+  <section class="section-block">
+    <h2>Scan details</h2>
+    <div class="form-grid">
+      {% include 'app/_field.html' with field=form.patient %}
+      {% include 'app/_field.html' with field=form.image %}
     </div>
-</div>
-
-<style>
-    /* Remove all external margins and ensure full width */
-    .row {
-        margin: 0 !important;
-    }
-    
-    .col-12 {
-        padding: 0 !important;
-    }
-    
-    /* Card styling */
-    .card {
-        border-radius: 0 !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .card-header {
-        border-radius: 0 !important;
-        padding: 1.5rem;
-        background-color: #ffffff !important;
-        border-bottom: 2px solid #e9ecef;
-    }
-    
-    .card-body {
-        padding: 2rem;
-    }
-    
-    /* Button styling */
-    .btn-lg {
-        padding: 12px 24px;
-        font-size: 16px;
-        font-weight: 500;
-        border-radius: 8px;
-    }
-    
-    .btn-primary {
-        background-color: #4285f4;
-        border-color: #4285f4;
-    }
-    
-    .btn-primary:hover {
-        background-color: #3367d6;
-        border-color: #3367d6;
-    }
-    
-    /* List styling */
-    ol li {
-        font-size: 15px;
-        line-height: 1.6;
-        color: #495057;
-    }
-    
-    /* Alert styling */
-    .alert-info {
-        background-color: #f8f9fa !important;
-        border-left: 4px solid #4285f4;
-        color: #495057;
-        font-size: 14px;
-    }
-    
-    /* Form improvements */
-    .form-control {
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        padding: 12px 16px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-    }
-    
-    .form-control:focus {
-        border-color: #4285f4;
-        box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.15);
-    }
-    
-    .form-select {
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        padding: 12px 16px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-    }
-    
-    .form-select:focus {
-        border-color: #4285f4;
-        box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.15);
-    }
-    
-    /* Label styling */
-    .form-label {
-        font-weight: 500;
-        color: #495057;
-        margin-bottom: 8px;
-    }
-    
-    /* Icon spacing */
-    .bi {
-        font-size: inherit;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .card-header,
-        .card-body {
-            padding: 1rem;
-        }
-        
-        .btn-lg {
-            padding: 12px 20px;
-            font-size: 15px;
-        }
-    }
-</style>
+    {% include 'app/_field.html' with field=form.notes %}
+  </section>
+  <div class="form-actions"><button class="button button-primary" type="submit" {% if not model_available %}disabled{% endif %}>Upload and analyze</button></div>
+</form>
 {% endblock %}

@@ -1,9 +1,8 @@
 # config/urls.py
 from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
+from django.urls import path, include, re_path
 from django.views.generic import RedirectView
+from app.views import page_not_found as app_page_not_found
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -11,5 +10,6 @@ urlpatterns = [
     path('', include('app.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += [re_path(r'^.*$', app_page_not_found)]
+
+handler404 = 'app.views.page_not_found'

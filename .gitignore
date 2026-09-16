@@ -1,4 +1,13 @@
 
-app/model_weights/best_model.pth
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.local_secret_key
 db.sqlite3
-media
+media/
+staticfiles/
+app/model_weights/*.pth
+github-ready/
