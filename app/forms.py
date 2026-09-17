@@ -1,5 +1,6 @@
 # app/forms.py
 from django import forms
+from django.conf import settings
 from django.contrib.auth.forms import UserCreationForm
 from .models import User, Patient, RetinaImage, Appointment
 from django.utils import timezone
@@ -14,8 +15,9 @@ class StyledFormMixin:
 
     def clean_profile_picture(self):
         image = self.cleaned_data.get('profile_picture')
-        if image and image.size > 5 * 1024 * 1024:
-            raise forms.ValidationError('Profile photos must be 5 MB or smaller.')
+        limit = settings.MAX_IMAGE_UPLOAD_BYTES or 5 * 1024 * 1024
+        if image and image.size > limit:
+            raise forms.ValidationError(f'Profile photos must be {limit // (1024 * 1024)} MB or smaller.')
         return image
 
 class UserRegisterForm(StyledFormMixin, UserCreationForm):
@@ -79,8 +81,9 @@ class RetinaImageForm(StyledFormMixin, forms.ModelForm):
 
     def clean_image(self):
         image = self.cleaned_data['image']
-        if image.size > 10 * 1024 * 1024:
-            raise forms.ValidationError('Retinal images must be 10 MB or smaller.')
+        limit = settings.MAX_IMAGE_UPLOAD_BYTES or 10 * 1024 * 1024
+        if image.size > limit:
+            raise forms.ValidationError(f'Retinal images must be {limit // (1024 * 1024)} MB or smaller.')
         return image
 
 

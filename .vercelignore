@@ -1,0 +1,16 @@
+.git/
+.venv/
+.env
+.env.*
+.local_secret_key
+db.sqlite3
+media/
+staticfiles/
+app/model_weights/
+notebooks/
+research/
+github-ready/
+train_images/
+train.csv
+*.pth
+*.pt

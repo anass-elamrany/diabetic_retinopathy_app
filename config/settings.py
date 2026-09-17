@@ -12,13 +12,17 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.utils import get_random_secret_key
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-DEBUG = os.environ.get('DJANGO_DEBUG', '1').lower() in ('1', 'true', 'yes')
+IS_VERCEL = bool(os.environ.get('VERCEL'))
+DEBUG = os.environ.get('DJANGO_DEBUG', '0' if IS_VERCEL else '1').lower() in ('1', 'true', 'yes')
+if IS_VERCEL and DEBUG:
+    raise ImproperlyConfigured('DJANGO_DEBUG must be disabled on Vercel.')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 if not SECRET_KEY:
     if not DEBUG:
@@ -35,11 +39,16 @@ if not SECRET_KEY:
         raise ImproperlyConfigured('The local development secret key is empty.')
 
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if host.strip()]
+if IS_VERCEL and os.environ.get('VERCEL_URL'):
+    ALLOWED_HOSTS.append(os.environ['VERCEL_URL'])
 ALLOW_PUBLIC_REGISTRATION = DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_SSL_REDIRECT = not DEBUG
 SECURE_HSTS_SECONDS = 3600 if not DEBUG else 0
+if IS_VERCEL:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+MAX_IMAGE_UPLOAD_BYTES = 4 * 1024 * 1024 if IS_VERCEL else None
 
 
 # Application definition
@@ -91,12 +100,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+database_url = os.environ.get('DATABASE_URL')
+if IS_VERCEL and not database_url:
+    raise ImproperlyConfigured('Set DATABASE_URL to an external PostgreSQL database on Vercel.')
 DATABASES = {
-    'default': {
+    'default': dj_database_url.parse(database_url, conn_max_age=0) if database_url else {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+if IS_VERCEL and DATABASES['default']['ENGINE'] != 'django.db.backends.postgresql':
+    raise ImproperlyConfigured('Vercel requires an external PostgreSQL database.')
 
 
 # Password validation
@@ -153,3 +167,25 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+if IS_VERCEL:
+    required_storage = ('AWS_STORAGE_BUCKET_NAME', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_S3_REGION_NAME')
+    missing_storage = [name for name in required_storage if not os.environ.get(name)]
+    if missing_storage:
+        raise ImproperlyConfigured('Set private S3 storage variables on Vercel: ' + ', '.join(missing_storage))
+    STORAGES = {
+        'default': {
+            'BACKEND': 'storages.backends.s3.S3Storage',
+            'OPTIONS': {
+                'bucket_name': os.environ['AWS_STORAGE_BUCKET_NAME'],
+                'access_key': os.environ['AWS_ACCESS_KEY_ID'],
+                'secret_key': os.environ['AWS_SECRET_ACCESS_KEY'],
+                'region_name': os.environ['AWS_S3_REGION_NAME'],
+                'endpoint_url': os.environ.get('AWS_S3_ENDPOINT_URL') or None,
+                'default_acl': None,
+                'querystring_auth': True,
+                'file_overwrite': False,
+            },
+        },
+        'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+    }

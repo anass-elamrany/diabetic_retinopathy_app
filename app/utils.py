@@ -66,12 +66,17 @@ class DRModel:
         self.available = True
         return model
 
-    def preprocess(self, image_path):
-        """Apply the same preprocessing as during training"""
+    def preprocess(self, image_source):
+        """Apply the app's inference preprocessing; training provenance is unverified."""
         import cv2
         import numpy as np
 
-        img = cv2.imread(image_path)
+        if hasattr(image_source, 'read'):
+            img = cv2.imdecode(np.frombuffer(image_source.read(), dtype=np.uint8), cv2.IMREAD_COLOR)
+        else:
+            img = cv2.imread(image_source)
+        if img is None:
+            raise ValueError('The retinal image could not be decoded.')
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         
         # Circle crop
@@ -94,14 +99,14 @@ class DRModel:
         
         return Image.fromarray(img)
 
-    def predict(self, image_path):
+    def predict(self, image_source):
         """Make prediction on a single image"""
         if not self.available:
             raise RuntimeError(self.unavailable_reason)
 
         import torch
 
-        img = self.preprocess(image_path)
+        img = self.preprocess(image_source)
         img_tensor = self.transform(img).unsqueeze(0)
         
         with torch.no_grad():

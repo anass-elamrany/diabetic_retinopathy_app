@@ -117,9 +117,36 @@ class PageTests(TestCase):
         self.assertEqual(RetinaImage.objects.count(), 1)
 
         upload = SimpleUploadedFile('scan.png', buffer.getvalue(), content_type='image/png')
-        response = self.client.post(reverse('upload'), {'patient': self.patient.pk, 'image': upload})
+        with patch('app.views.dr_model') as model:
+            model.available = False
+            response = self.client.post(reverse('upload'), {'patient': self.patient.pk, 'image': upload})
         self.assertContains(response, 'Image analysis is unavailable')
         self.assertEqual(RetinaImage.objects.count(), 1)
+
+    def test_successful_analysis_shows_result(self):
+        self.client.force_login(self.user)
+        image = Image.new('RGB', (4, 4), 'white')
+        buffer = BytesIO()
+        image.save(buffer, format='PNG')
+        upload = SimpleUploadedFile('scan.png', buffer.getvalue(), content_type='image/png')
+        storage = {
+            'default': {'BACKEND': 'django.core.files.storage.InMemoryStorage'},
+            'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+        }
+        with override_settings(STORAGES=storage):
+            with patch('app.views.dr_model') as model:
+                model.available = True
+                def predict(image_file):
+                    self.assertEqual(image_file.read(8), b'\x89PNG\r\n\x1a\n')
+                    return {'class': 2, 'confidence': 0.83}
+
+                model.predict.side_effect = predict
+                response = self.client.post(reverse('upload'), {'patient': self.patient.pk, 'image': upload})
+            scan = RetinaImage.objects.get(stage=2)
+            self.assertRedirects(response, reverse('result', args=[scan.pk]))
+            self.assertAlmostEqual(scan.confidence, 0.83)
+            image_response = self.client.get(reverse('retina_image_file', args=[scan.pk]))
+            self.assertEqual(b''.join(image_response.streaming_content), buffer.getvalue())
 
     def test_login_errors_visible(self):
         response = self.client.post(reverse('login'), {'username': 'doctor', 'password': 'wrong'})
@@ -338,6 +365,27 @@ class DemoDataTests(TestCase):
         call_command('seed_demo', stdout=StringIO())
         self.assertEqual(Patient.objects.filter(patient_id__startswith='DEMO-').count(), 10)
         self.assertEqual(Appointment.objects.count(), 7)
+
+    @override_settings(DEBUG=True)
+    def test_seed_existing_account_without_changing_login(self):
+        doctor = get_user_model().objects.create_user(username='doctor', password='original-password')
+        call_command('seed_demo', username='doctor', stdout=StringIO())
+        call_command('seed_demo', username='doctor', stdout=StringIO())
+
+        doctor.refresh_from_db()
+        self.assertTrue(doctor.check_password('original-password'))
+        self.assertEqual(Patient.objects.filter(created_by=doctor).count(), 10)
+        self.assertEqual(Appointment.objects.filter(created_by=doctor).count(), 7)
+        self.assertEqual(Patient.objects.filter(patient_id__startswith='DEMO-U').count(), 10)
+
+        self.client.force_login(doctor)
+        self.assertContains(self.client.get(reverse('dashboard')), '10')
+        self.assertEqual(self.client.get(reverse('appointments')).status_code, 200)
+
+    @override_settings(DEBUG=True)
+    def test_seed_existing_account_requires_a_real_user(self):
+        with self.assertRaises(CommandError):
+            call_command('seed_demo', username='missing-doctor', stdout=StringIO())
 
     @override_settings(DEBUG=False)
     def test_seed_refuses_production_mode(self):

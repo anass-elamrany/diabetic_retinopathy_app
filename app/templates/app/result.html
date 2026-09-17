@@ -8,7 +8,7 @@
 <div class="result-grid">
   <section class="section-block"><h2>Retinal image</h2><img class="result-image" src="{% url 'retina_image_file' image.id %}" alt="Uploaded retinal scan"></section>
   <section class="section-block"><h2>Assessment</h2>
-    {% if image.confidence %}<p class="result-stage">{{ stage_display }}</p><p class="result-confidence">Model confidence: {{ confidence_percentage }}%</p><p class="result-note">This result is an automated screening output and requires clinical review.</p>
+    {% if image.confidence %}<p class="result-stage">{{ stage_display }}</p><p class="result-confidence">Model score: {{ confidence_percentage }}%</p><p class="result-note">Research output only. Training provenance, preprocessing, and label mapping for this checkpoint have not been verified. Do not use it for diagnosis or treatment decisions.</p>
     {% else %}<p class="result-stage">Analysis unavailable</p>{% endif %}
     <div class="section-divider"></div><h2>Clinical notes</h2><p class="text-body">{{ image.notes|default:"No notes provided."|linebreaksbr }}</p>
     <div class="section-divider"></div><a href="{% url 'patient_detail' image.patient.id %}">View patient history</a>

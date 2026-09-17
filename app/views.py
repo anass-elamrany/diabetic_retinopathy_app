@@ -9,7 +9,6 @@ from .models import Patient, RetinaImage, Appointment
 from .utils import DRModel
 import logging
 import mimetypes
-import os
 
 from django.conf import settings
 from django.contrib.auth import views as auth_views
@@ -232,8 +231,8 @@ def upload_image(request):
                 retina_image.analyzed_by = request.user
                 try:
                     retina_image.save()
-                    image_path = os.path.join(settings.MEDIA_ROOT, str(retina_image.image))
-                    prediction = dr_model.predict(image_path)
+                    with retina_image.image.open('rb') as image_file:
+                        prediction = dr_model.predict(image_file)
                     retina_image.stage = prediction['class']
                     retina_image.confidence = prediction['confidence']
                     retina_image.save(update_fields=['stage', 'confidence'])

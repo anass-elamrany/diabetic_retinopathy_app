@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 240" role="img" aria-labelledby="title desc">
+  <title id="title">APTOS 2019 training image counts</title>
+  <desc id="desc">Of 3,662 training images, 1,805 are labeled No DR and 1,857 are labeled with diabetic retinopathy.</desc>
+  <rect width="920" height="240" fill="#f7fafc"/>
+  <text x="32" y="48" fill="#17324d" font-family="Arial, sans-serif" font-size="25" font-weight="700">3,662 labeled training images</text>
+  <text x="32" y="77" fill="#526476" font-family="Arial, sans-serif" font-size="16">APTOS 2019 Blindness Detection</text>
+  <rect x="32" y="105" width="421" height="46" rx="5" fill="#166aa3"/>
+  <rect x="453" y="105" width="435" height="46" rx="5" fill="#168178"/>
+  <text x="32" y="191" fill="#17324d" font-family="Arial, sans-serif" font-size="20" font-weight="700">1,805 No DR</text>
+  <text x="453" y="191" fill="#17324d" font-family="Arial, sans-serif" font-size="20" font-weight="700">1,857 DR</text>
+  <text x="32" y="216" fill="#526476" font-family="Arial, sans-serif" font-size="15">Grade 0</text>
+  <text x="453" y="216" fill="#526476" font-family="Arial, sans-serif" font-size="15">Grades 1 to 4 combined</text>
+</svg>

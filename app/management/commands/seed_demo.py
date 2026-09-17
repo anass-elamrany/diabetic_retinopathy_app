@@ -3,6 +3,7 @@ from datetime import date, datetime, time, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 from django.utils import timezone
 
 from app.models import Appointment, Patient, User
@@ -26,31 +27,49 @@ DEMO_PATIENTS = [
 class Command(BaseCommand):
     help = 'Create fictional patients and appointments for local screenshots.'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--username',
+            default='demo_clinic',
+            help='Existing account to populate; defaults to the separate demo_clinic account.',
+        )
+
+    @transaction.atomic
     def handle(self, *args, **options):
         if not settings.DEBUG:
             raise CommandError('Demo data may only be created when DJANGO_DEBUG=1.')
 
-        user, created = User.objects.get_or_create(
-            username='demo_clinic',
-            defaults={
-                'email': DEMO_EMAIL,
-                'first_name': 'Maya',
-                'last_name': 'Chen',
-                'hospital': 'Sample Clinic',
-                'license_number': 'DEMO-ONLY',
-            },
-        )
-        if not created and user.email != DEMO_EMAIL:
-            raise CommandError('The demo_clinic username belongs to another account.')
-
-        password = secrets.token_urlsafe(16)
-        user.set_password(password)
-        user.save(update_fields=['password'])
+        username = options['username']
+        password = None
+        if username == 'demo_clinic':
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    'email': DEMO_EMAIL,
+                    'first_name': 'Maya',
+                    'last_name': 'Chen',
+                    'hospital': 'Sample Clinic',
+                    'license_number': 'DEMO-ONLY',
+                },
+            )
+            if not created and user.email != DEMO_EMAIL:
+                raise CommandError('The demo_clinic username belongs to another account.')
+            password = secrets.token_urlsafe(16)
+            user.set_password(password)
+            user.save(update_fields=['password'])
+        else:
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist as exc:
+                raise CommandError(f'No account named {username}.') from exc
 
         patients = []
         for number, (first_name, last_name, gender, birth_year, reason) in enumerate(DEMO_PATIENTS, 1):
+            patient_id = f'DEMO-{number:03d}' if username == 'demo_clinic' else f'DEMO-U{user.pk}-{number:03d}'
+            if len(patient_id) > Patient._meta.get_field('patient_id').max_length:
+                raise CommandError('Demo patient ID exceeds the database field length.')
             patient, patient_created = Patient.objects.get_or_create(
-                patient_id=f'DEMO-{number:03d}',
+                patient_id=patient_id,
                 defaults={
                     'first_name': first_name,
                     'last_name': last_name,
@@ -85,6 +104,9 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(self.style.SUCCESS('Demo data ready: 10 fictional patients and 7 appointments.'))
-        self.stdout.write('Username: demo_clinic')
-        self.stdout.write(f'Temporary password: {password}')
-        self.stdout.write('Running this command again rotates the password and refreshes appointment dates.')
+        self.stdout.write(f'Username: {username}')
+        if password:
+            self.stdout.write(f'Temporary password: {password}')
+            self.stdout.write('Running this command again rotates the password and refreshes appointment dates.')
+        else:
+            self.stdout.write('The existing account password was not changed.')

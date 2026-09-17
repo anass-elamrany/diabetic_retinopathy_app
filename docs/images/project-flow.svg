@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 220" role="img" aria-labelledby="title desc">
+  <title id="title">Retinal image grading workflow</title>
+  <desc id="desc">A fundus photograph is processed by a compatible model, which produces one of five severity grades for review.</desc>
+  <rect width="920" height="220" fill="#f7fafc"/>
+  <text x="32" y="43" fill="#17324d" font-family="Arial, sans-serif" font-size="24" font-weight="700">The idea</text>
+  <rect x="32" y="76" width="225" height="82" rx="6" fill="#ffffff" stroke="#b9c8d3"/>
+  <text x="56" y="111" fill="#17324d" font-family="Arial, sans-serif" font-size="19" font-weight="700">Fundus photograph</text>
+  <text x="56" y="136" fill="#526476" font-family="Arial, sans-serif" font-size="15">Image of the retina</text>
+  <path d="M272 117h64m-13-10 13 10-13 10" fill="none" stroke="#526476" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="352" y="76" width="225" height="82" rx="6" fill="#eaf3f8" stroke="#a8c5d8"/>
+  <text x="376" y="111" fill="#17324d" font-family="Arial, sans-serif" font-size="19" font-weight="700">Compatible model</text>
+  <text x="376" y="136" fill="#526476" font-family="Arial, sans-serif" font-size="15">Optional in this app</text>
+  <path d="M592 117h64m-13-10 13 10-13 10" fill="none" stroke="#526476" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="672" y="76" width="216" height="82" rx="6" fill="#ffffff" stroke="#b9c8d3"/>
+  <text x="696" y="111" fill="#17324d" font-family="Arial, sans-serif" font-size="19" font-weight="700">Grade 0 to 4</text>
+  <text x="696" y="136" fill="#526476" font-family="Arial, sans-serif" font-size="15">For clinician review</text>
+  <text x="32" y="194" fill="#526476" font-family="Arial, sans-serif" font-size="15">A prediction is not a diagnosis.</text>
+</svg>

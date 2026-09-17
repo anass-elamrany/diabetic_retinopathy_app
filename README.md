@@ -1,12 +1,32 @@
 # DR Vision
 
-A Django app for patient records, appointments, and retinal image analysis. Patient and appointment workflows work without the AI model.
+DR Vision is a Django app for managing patients and appointments and exploring retinal image analysis. The patient and appointment features work without an AI model.
 
-> **Model status:** This repository does not include the trained model weights. Image analysis is unavailable until a compatible model is installed. The upload page explains this and disables submission.
+## Project story
 
-## Quick start
+Diabetic retinopathy (DR) is an eye condition caused by diabetes. It may have no early symptoms, so regular eye examinations matter. The goal of this project is to explore whether a machine learning model can help classify DR from a photograph of the retina into five stages. It is a learning project, not a replacement for an eye examination or clinical diagnosis. Read more from the [National Eye Institute](https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/diabetic-retinopathy).
 
-Use Python 3.12 and run these commands from the project root:
+![A fundus photograph can be graded by a compatible model, then reviewed by a clinician](docs/images/project-flow.svg)
+
+The [APTOS 2019 Blindness Detection dataset](https://www.kaggle.com/c/aptos2019-blindness-detection) contains 3,662 labeled training photographs of retinas. The images vary in size and were taken under different conditions. A clinician assigned each training image one grade:
+
+| Grade | Meaning |
+| --- | --- |
+| 0 | No DR |
+| 1 | Mild |
+| 2 | Moderate |
+| 3 | Severe |
+| 4 | Proliferative DR |
+
+Of the 3,662 images, 1,805 are labeled No DR and 1,857 are labeled with a DR grade.
+
+![APTOS training images: 1,805 No DR and 1,857 with DR](docs/images/aptos-training-split.svg)
+
+The notebooks in `research/notebooks/` explore CNN and transfer-learning approaches using this dataset. They do not document the training of the model checkpoint used by the app. The dataset images are not included in this repository.
+
+## Run the app
+
+Use Python 3.12. From the project directory, run:
 
 ```bash
 python3 -m venv .venv
@@ -16,45 +36,19 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Open <http://127.0.0.1:8000/register/> to create an account, then sign in. If port 8000 is busy, use `python manage.py runserver 8001` and open the corresponding URL.
+Open <http://127.0.0.1:8000/register/> to create an account and sign in. On the dashboard, add patients, review their records, and schedule appointments.
 
-The app uses a local SQLite database (`db.sqlite3`). Uploaded images are stored under `media/`. Both are local runtime files and are excluded from Git.
+For fictional patients and appointments to explore, run `python manage.py seed_demo`. The command prints the password for a separate `demo_clinic` account.
 
-Appointment times are displayed in the app's configured `Africa/Casablanca` time zone.
+## Get `best_model.pth` for image analysis
 
-## Screenshot data
+The model file is **not part of the Kaggle dataset** and is not included in Git. This workspace has a local copy at `app/model_weights/best_model.pth`, but someone cloning the repository needs to obtain the trained file separately from the project owner. A different `.pth` file may not work: it must match the `DRNet` model defined in `app/utils.py`.
 
-Run `python manage.py seed_demo` while in development mode. It creates a separate `demo_clinic` account with 10 fictional patients and 7 appointments. The command prints a random temporary password. Use that account for screenshots; running the command again refreshes appointment dates and rotates the password. It creates no retinal images or invented diagnoses.
-
-## Enable image analysis
-
-The inference code in `app/utils.py` expects a PyTorch state dictionary at `app/model_weights/best_model.pth`. The file must match the `DRNet` architecture defined there. It is not provided in this repository.
-
-Install the additional packages in the active virtual environment:
+Once you have a compatible checkpoint, place it at `app/model_weights/best_model.pth` and install the optional packages:
 
 ```bash
-python -m pip install torch torchvision numpy opencv-python
+python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+python -m pip install opencv-python-headless
 ```
 
-Place a compatible `best_model.pth` in `app/model_weights/`, then restart the server. The model predicts one of five stages: No DR, Mild, Moderate, Severe, or Proliferative DR.
-
-## Project layout
-
-| Path | Purpose |
-| --- | --- |
-| `config/` | Django settings and root URLs |
-| `app/models.py` | Users, patients, appointments, and retinal images |
-| `app/views.py` | Registration, dashboard, patients, appointments, uploads, and results |
-| `app/utils.py` | Image preprocessing and model inference |
-| `app/templates/app/` | Page templates |
-| `app/static/app/` | CSS, JavaScript, and images |
-
-## Development notes
-
-Run `python manage.py check` to validate the Django configuration and `python manage.py test app` to run the app tests.
-
-For local development, Django creates an ignored `.local_secret_key` file with owner-only permissions. To deploy, set `DJANGO_DEBUG=0`, `DJANGO_SECRET_KEY` to a new random value, and `DJANGO_ALLOWED_HOSTS` to your domain. `.env.example` lists these variables but is not loaded automatically. Public account registration is disabled when debug mode is off. Use `python manage.py check --deploy` with the deployment environment.
-
-Uploaded images are served through authenticated, owner-checked views. Do not configure a web server to expose `media/` directly. Use HTTPS, protect backups, and review the hosting setup before storing real patient information. This repository is a development project, not a production clinical system.
-
-**GitHub history warning:** The original Git commits contain an old Django secret key. The active key is now different, but deleting a secret from the current file does not erase old commits. For a public repository with no old key in its history, publish from a fresh repository made from the cleaned source files, rather than pushing this repository's existing history. If the old key was ever used outside local development, rotate it there as well. See [GitHub's guidance on exposed secrets](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository).
+Restart the app, sign in, add a patient, and open **Upload Image** to select a retinal photograph. The result shows a predicted grade for review. Without the model file, you can still use patients and appointments.
