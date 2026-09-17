@@ -1,16 +1,18 @@
-# DR Vision
+# APTOS 2019 Blindness Detection
 
-DR Vision is a Django app for managing patients and appointments and exploring retinal image analysis. The patient and appointment features work without an AI model.
+## About the project
 
-## Project story
+Diabetic retinopathy (DR) is damage to the retina caused by diabetes. It can have no early symptoms, which makes regular eye examinations important. This project explores whether deep learning can help classify DR from a fundus photograph. It is an educational project, not a tool for clinical diagnosis. [Learn more about DR](https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/diabetic-retinopathy).
 
-Diabetic retinopathy (DR) is an eye condition caused by diabetes. It may have no early symptoms, so regular eye examinations matter. The goal of this project is to explore whether a machine learning model can help classify DR from a photograph of the retina into five stages. It is a learning project, not a replacement for an eye examination or clinical diagnosis. Read more from the [National Eye Institute](https://www.nei.nih.gov/eye-health-information/eye-conditions-and-diseases/diabetic-retinopathy).
+**Problem statement:** Build a machine learning model that can help sort retinal photographs into five DR severity stages.
 
-![A fundus photograph can be graded by a compatible model, then reviewed by a clinician](docs/images/project-flow.svg)
+![Project flow: retinal photograph, compatible model, and grade for review](docs/images/project-flow.svg)
 
-The [APTOS 2019 Blindness Detection dataset](https://www.kaggle.com/c/aptos2019-blindness-detection) contains 3,662 labeled training photographs of retinas. The images vary in size and were taken under different conditions. A clinician assigned each training image one grade:
+## Dataset
 
-| Grade | Meaning |
+The [APTOS 2019 Blindness Detection dataset](https://www.kaggle.com/c/aptos2019-blindness-detection) contains 3,662 labeled training photographs taken under different imaging conditions. A clinician assigned each image a grade from 0 to 4:
+
+| Grade | Stage |
 | --- | --- |
 | 0 | No DR |
 | 1 | Mild |
@@ -18,15 +20,21 @@ The [APTOS 2019 Blindness Detection dataset](https://www.kaggle.com/c/aptos2019-
 | 3 | Severe |
 | 4 | Proliferative DR |
 
-Of the 3,662 images, 1,805 are labeled No DR and 1,857 are labeled with a DR grade.
+There are 1,805 images labeled No DR and 1,857 labeled with a DR stage.
 
-![APTOS training images: 1,805 No DR and 1,857 with DR](docs/images/aptos-training-split.svg)
+![APTOS training image counts: 1,805 No DR and 1,857 DR](docs/images/aptos-training-split.svg)
 
-The notebooks in `research/notebooks/` explore CNN and transfer-learning approaches using this dataset. They do not document the training of the model checkpoint used by the app. The dataset images are not included in this repository.
+The notebooks in `research/notebooks/` explore CNN and transfer-learning approaches. The dataset photos are not included in this repository, and the notebooks do not document the training of the app's current model file.
 
-## Run the app
+## Django app
 
-Use Python 3.12. From the project directory, run:
+We built a web app where users can manage patients, schedule appointments, and upload retinal photographs for a predicted grade when a compatible model is installed. Patient and appointment features also work without the model.
+
+**Built with:** Python, Django, HTML, CSS, JavaScript, and SQLite for local data. Optional image analysis uses PyTorch and OpenCV.
+
+## Run locally
+
+Use Python 3.12. In the project folder, run:
 
 ```bash
 python3 -m venv .venv
@@ -36,19 +44,11 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Open <http://127.0.0.1:8000/register/> to create an account and sign in. On the dashboard, add patients, review their records, and schedule appointments.
+Open <http://127.0.0.1:8000/register/>, create an account, and sign in. You can add patients and appointments right away. To load fictional sample records, run `python manage.py seed_demo` and sign in with the `demo_clinic` account and password printed by the command.
 
-For fictional patients and appointments to explore, run `python manage.py seed_demo`. The command prints the password for a separate `demo_clinic` account.
-
-## Get `best_model.pth` for image analysis
-
-The model file is **not part of the Kaggle dataset** and is not included in Git. This workspace has a local copy at `app/model_weights/best_model.pth`, but someone cloning the repository needs to obtain the trained file separately from the project owner. A different `.pth` file may not work: it must match the `DRNet` model defined in `app/utils.py`.
-
-Once you have a compatible checkpoint, place it at `app/model_weights/best_model.pth` and install the optional packages:
+**Optional image analysis:** Obtain a compatible `best_model.pth` from the project owner and place it at `app/model_weights/best_model.pth`. The file is not part of the Kaggle dataset or this Git repository. Install the extra packages below, restart the app, and use **Upload Image**. The model file must match `DRNet` in `app/utils.py`.
 
 ```bash
 python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 python -m pip install opencv-python-headless
 ```
-
-Restart the app, sign in, add a patient, and open **Upload Image** to select a retinal photograph. The result shows a predicted grade for review. Without the model file, you can still use patients and appointments.
